@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { TrendingUp, DollarSign, Wallet, ArrowUpRight, ArrowDownRight, Clock, Plus, Download } from 'lucide-react';
 import { mockDashboardStats, mockEarningsChartData, mockPortfolioData, mockBalanceHistory, mockTransactions } from '@/data/mockData';
+import InvestmentDialog from '@/components/InvestmentDialog';
+import WithdrawalDialog from '@/components/WithdrawalDialog';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [investmentDialogOpen, setInvestmentDialogOpen] = useState(false);
+  const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
 
   const stats = mockDashboardStats;
 
@@ -201,15 +207,30 @@ const Dashboard: React.FC = () => {
               <CardDescription>Manage your investments</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="investment" size="lg" className="w-full">
+              <Button 
+                variant="investment" 
+                size="lg" 
+                className="w-full"
+                onClick={() => setInvestmentDialogOpen(true)}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 New Investment
               </Button>
-              <Button variant="outline" size="lg" className="w-full">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full"
+                onClick={() => setWithdrawalDialogOpen(true)}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 Withdraw Funds
               </Button>
-              <Button variant="secondary" size="lg" className="w-full">
+              <Button 
+                variant="secondary" 
+                size="lg" 
+                className="w-full"
+                onClick={() => navigate('/plans')}
+              >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 View Plans
               </Button>
@@ -284,6 +305,16 @@ const Dashboard: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Dialogs */}
+        <InvestmentDialog 
+          open={investmentDialogOpen}
+          onOpenChange={setInvestmentDialogOpen}
+        />
+        <WithdrawalDialog
+          open={withdrawalDialogOpen}
+          onOpenChange={setWithdrawalDialogOpen}
+        />
       </div>
     </div>
   );
