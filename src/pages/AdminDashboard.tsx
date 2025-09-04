@@ -9,6 +9,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarC
 import { Users, DollarSign, TrendingUp, Shield, Eye, Ban, CheckCircle, XCircle, Settings } from 'lucide-react';
 import { mockInvestments, mockTransactions, mockInvestmentPlans } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
+import ReportsDialog from '@/components/ReportsDialog';
+import NotificationDialog from '@/components/NotificationDialog';
+import BackupDialog from '@/components/BackupDialog';
 
 // Mock admin data
 const mockUsers = [
@@ -39,6 +42,9 @@ const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedUser, setSelectedUser] = useState<string>('');
+  const [reportsDialogOpen, setReportsDialogOpen] = useState(false);
+  const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+  const [backupDialogOpen, setBackupDialogOpen] = useState(false);
 
   if (!user?.isAdmin) {
     return (
@@ -395,12 +401,7 @@ const AdminDashboard: React.FC = () => {
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => {
-                  toast({
-                    title: "System Backup",
-                    description: "Full system backup initiated successfully",
-                  });
-                }}
+                onClick={() => setBackupDialogOpen(true)}
               >
                 <Shield className="w-4 h-4 mr-2" />
                 System Backup
@@ -408,12 +409,7 @@ const AdminDashboard: React.FC = () => {
               <Button 
                 variant="secondary" 
                 className="w-full"
-                onClick={() => {
-                  toast({
-                    title: "Reports Generated",
-                    description: "All daily reports have been generated and sent",
-                  });
-                }}
+                onClick={() => setReportsDialogOpen(true)}
               >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Generate Reports
@@ -421,12 +417,7 @@ const AdminDashboard: React.FC = () => {
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => {
-                  toast({
-                    title: "Mass Notification",
-                    description: "Notification sent to all active users successfully",
-                  });
-                }}
+                onClick={() => setNotificationDialogOpen(true)}
               >
                 <Users className="w-4 h-4 mr-2" />
                 Notify All Users
@@ -434,6 +425,23 @@ const AdminDashboard: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Dialogs */}
+        <ReportsDialog
+          open={reportsDialogOpen}
+          onOpenChange={setReportsDialogOpen}
+          isAdmin={true}
+        />
+        <NotificationDialog
+          open={notificationDialogOpen}
+          onOpenChange={setNotificationDialogOpen}
+          isAdmin={true}
+        />
+        <BackupDialog
+          open={backupDialogOpen}
+          onOpenChange={setBackupDialogOpen}
+          isAdmin={true}
+        />
       </div>
     </div>
   );

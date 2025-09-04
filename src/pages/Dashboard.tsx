@@ -5,16 +5,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
-import { TrendingUp, DollarSign, Wallet, ArrowUpRight, ArrowDownRight, Clock, Plus, Download } from 'lucide-react';
+import { TrendingUp, DollarSign, Wallet, ArrowUpRight, ArrowDownRight, Clock, Plus, Download, Shield, Users } from 'lucide-react';
 import { mockDashboardStats, mockEarningsChartData, mockPortfolioData, mockBalanceHistory, mockTransactions } from '@/data/mockData';
 import InvestmentDialog from '@/components/InvestmentDialog';
 import WithdrawalDialog from '@/components/WithdrawalDialog';
+import ReportsDialog from '@/components/ReportsDialog';
+import NotificationDialog from '@/components/NotificationDialog';
+import BackupDialog from '@/components/BackupDialog';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [investmentDialogOpen, setInvestmentDialogOpen] = useState(false);
   const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
+  const [reportsDialogOpen, setReportsDialogOpen] = useState(false);
+  const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+  const [backupDialogOpen, setBackupDialogOpen] = useState(false);
 
   const stats = mockDashboardStats;
 
@@ -236,15 +242,35 @@ const Dashboard: React.FC = () => {
               </Button>
               
               <div className="mt-6 pt-4 border-t border-card-border">
-                <h4 className="text-sm font-medium text-foreground mb-3">Pending Actions</h4>
+                <h4 className="text-sm font-medium text-foreground mb-3">Quick Actions</h4>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 text-accent mr-2" />
-                      <span className="text-sm text-muted-foreground">Withdrawal Request</span>
-                    </div>
-                    <span className="text-sm font-medium text-accent">$200</span>
-                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => setBackupDialogOpen(true)}
+                  >
+                    <Shield className="w-4 h-4 mr-2" />
+                    Backup Data
+                  </Button>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => setReportsDialogOpen(true)}
+                  >
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Generate Reports
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => setNotificationDialogOpen(true)}
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Contact Support
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -314,6 +340,18 @@ const Dashboard: React.FC = () => {
         <WithdrawalDialog
           open={withdrawalDialogOpen}
           onOpenChange={setWithdrawalDialogOpen}
+        />
+        <ReportsDialog
+          open={reportsDialogOpen}
+          onOpenChange={setReportsDialogOpen}
+        />
+        <NotificationDialog
+          open={notificationDialogOpen}
+          onOpenChange={setNotificationDialogOpen}
+        />
+        <BackupDialog
+          open={backupDialogOpen}
+          onOpenChange={setBackupDialogOpen}
         />
       </div>
     </div>
