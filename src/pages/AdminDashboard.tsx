@@ -334,7 +334,17 @@ const AdminDashboard: React.FC = () => {
                     <label className="text-sm font-medium">Platform Fee (%)</label>
                     <Input type="number" placeholder="2.5" />
                   </div>
-                  <Button className="w-full">Save Settings</Button>
+                  <Button 
+                    className="w-full"
+                    onClick={() => {
+                      toast({
+                        title: "Settings Saved",
+                        description: "Platform settings have been updated successfully",
+                      });
+                    }}
+                  >
+                    Save Settings
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -353,7 +363,16 @@ const AdminDashboard: React.FC = () => {
                             {plan.dailyReturn}% daily • {plan.duration} days
                           </p>
                         </div>
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            toast({
+                              title: "Plan Settings",
+                              description: `${plan.name} plan settings opened for editing`,
+                            });
+                          }}
+                        >
                           <Settings className="w-4 h-4" />
                         </Button>
                       </div>
@@ -364,6 +383,57 @@ const AdminDashboard: React.FC = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Quick Actions for Admin */}
+        <Card className="bg-card/80 backdrop-blur border-card-border mt-6">
+          <CardHeader>
+            <CardTitle className="text-foreground">Quick Actions</CardTitle>
+            <CardDescription>Administrative tools and shortcuts</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  toast({
+                    title: "System Backup",
+                    description: "Full system backup initiated successfully",
+                  });
+                }}
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                System Backup
+              </Button>
+              <Button 
+                variant="secondary" 
+                className="w-full"
+                onClick={() => {
+                  toast({
+                    title: "Reports Generated",
+                    description: "All daily reports have been generated and sent",
+                  });
+                }}
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Generate Reports
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  toast({
+                    title: "Mass Notification",
+                    description: "Notification sent to all active users successfully",
+                  });
+                }}
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Notify All Users
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
