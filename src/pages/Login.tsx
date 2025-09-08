@@ -10,9 +10,12 @@ import { Eye, EyeOff, LogIn, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Login: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'phone' | 'email'>('phone');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -44,19 +47,10 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-elevated flex items-center justify-center p-6">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center space-x-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-r from-primary to-accent rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-7 h-7 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                CryptoVault Pro
-              </h1>
-            </div>
-          </Link>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Entrar</h1>
         </div>
 
         <Card className="bg-card/80 backdrop-blur border-card-border">

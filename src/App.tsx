@@ -8,9 +8,10 @@ import Header from "@/components/Header";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import InvestmentPlans from "./pages/InvestmentPlans";
+import TradingDashboard from "./pages/TradingDashboard";
+import InvestorsDashboard from "./pages/InvestorsDashboard";
+import ReferralSystem from "./pages/ReferralSystem";
+import Wallet from "./pages/Wallet";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,9 +29,10 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/plans" element={<InvestmentPlans />} />
+              <Route path="/dashboard" element={<TradingDashboard />} />
+              <Route path="/investors" element={<InvestorsDashboard />} />
+              <Route path="/referral" element={<ReferralSystem />} />
+              <Route path="/wallet" element={<Wallet />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
