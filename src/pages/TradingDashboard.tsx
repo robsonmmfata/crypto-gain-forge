@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Bitcoin, Zap } from 'lucide-react';
+import TradingChart from '@/components/TradingChart';
 
 interface CryptoPair {
   symbol: string;
@@ -187,14 +188,12 @@ const TradingDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Chart Placeholder */}
-          <div className="bg-card border border-border rounded-lg h-96 flex items-center justify-center">
-            <div className="text-center">
-              <TrendingUp className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">Gráfico de Trading</p>
-              <p className="text-sm text-muted-foreground">Dados em tempo real do {selectedPair}</p>
-            </div>
-          </div>
+          {/* Trading Chart */}
+          <TradingChart 
+            pair={selectedPair}
+            currentPrice={parseFloat(currentPair.price.replace(',', ''))}
+            change24h={parseFloat(currentPair.change24h.replace(/[%+]/g, ''))}
+          />
         </div>
 
         {/* Right Panel - Trading Actions */}
