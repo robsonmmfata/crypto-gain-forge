@@ -162,6 +162,7 @@ const mockDeposits: Deposit[] = [
   }
 ];
 
+// Fixed status icon function
 const getStatusIcon = (status: string) => {
   switch (status) {
     case 'completed':
