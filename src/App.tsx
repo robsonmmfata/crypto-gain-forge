@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import BottomNavigation from "@/components/BottomNavigation";
 import Index from "./pages/Index";
+import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import TradingDashboard from "./pages/TradingDashboard";
@@ -25,6 +26,7 @@ const AppContent = () => {
       <Header />
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<TradingDashboard />} />
