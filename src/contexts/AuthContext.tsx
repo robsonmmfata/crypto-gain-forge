@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/types';
+import { apiService } from '@/services/apiService';
 
 interface AuthContextType {
   user: User | null;
@@ -8,80 +9,79 @@ interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<boolean>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users data
-const mockUsers: User[] = [
-  {
-    id: '1',
-    email: 'admin@cryptovault.com',
-    name: 'Admin User',
-    balance: 50000,
-    totalInvested: 25000,
-    totalEarnings: 8500,
-    createdAt: '2024-01-01',
-    isAdmin: true
-  },
-  {
-    id: '2',
-    email: 'investor@example.com',
-    name: 'John Doe',
-    balance: 12500,
-    totalInvested: 10000,
-    totalEarnings: 2500,
-    createdAt: '2024-01-15'
-  }
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is logged in (from localStorage)
+    const token = localStorage.getItem('cryptovault_token');
     const savedUser = localStorage.getItem('cryptovault_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+
+    if (token && savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        // Set token in apiService
+        apiService.setToken(token);
+      } catch (error) {
+        console.error('Error parsing saved user:', error);
+        localStorage.removeItem('cryptovault_token');
+        localStorage.removeItem('cryptovault_user');
+      }
     }
+    setLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Mock login logic
-    const foundUser = mockUsers.find(u => u.email === email);
-    if (foundUser && password === 'password123') {
-      setUser(foundUser);
-      localStorage.setItem('cryptovault_user', JSON.stringify(foundUser));
-      return true;
+    try {
+      const response = await apiService.login({ email, password });
+
+      if (response.token && response.user) {
+        setUser(response.user);
+        localStorage.setItem('cryptovault_token', response.token);
+        localStorage.setItem('cryptovault_user', JSON.stringify(response.user));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
 
   const register = async (email: string, password: string, name: string): Promise<boolean> => {
-    // Mock registration logic
-    if (mockUsers.find(u => u.email === email)) {
-      return false; // User already exists
+    try {
+      const response = await apiService.register({
+        username: email,
+        email,
+        password,
+        full_name: name
+      });
+
+      if (response.token && response.user) {
+        setUser(response.user);
+        localStorage.setItem('cryptovault_token', response.token);
+        localStorage.setItem('cryptovault_user', JSON.stringify(response.user));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Registration error:', error);
+      return false;
     }
-
-    const newUser: User = {
-      id: Date.now().toString(),
-      email,
-      name,
-      balance: 0,
-      totalInvested: 0,
-      totalEarnings: 0,
-      createdAt: new Date().toISOString(),
-    };
-
-    mockUsers.push(newUser);
-    setUser(newUser);
-    localStorage.setItem('cryptovault_user', JSON.stringify(newUser));
-    return true;
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('cryptovault_token');
     localStorage.removeItem('cryptovault_user');
+    apiService.logout();
   };
 
   const updateUser = (userData: Partial<User>) => {
@@ -101,6 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout,
         updateUser,
+        loading,
       }}
     >
       {children}

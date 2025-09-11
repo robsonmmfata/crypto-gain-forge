@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import PlanCard from '@/components/PlanCard';
-import { mockInvestmentPlans } from '@/data/mockData';
+import { apiService } from '@/services/apiService';
 import { InvestmentPlan } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -11,6 +11,23 @@ const InvestmentPlans: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [investmentPlans, setInvestmentPlans] = useState<InvestmentPlan[]>([]);
+
+  useEffect(() => {
+    const fetchInvestmentPlans = async () => {
+      try {
+        const plans = await apiService.getInvestmentPlans();
+        setInvestmentPlans(plans);
+      } catch (error) {
+        toast({
+          title: "Erro ao carregar planos",
+          description: "Não foi possível carregar os planos de investimento.",
+          variant: "destructive",
+        });
+      }
+    };
+    fetchInvestmentPlans();
+  }, []);
 
   const handleInvest = (plan: InvestmentPlan) => {
     if (!isAuthenticated) {
@@ -44,7 +61,7 @@ const InvestmentPlans: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {mockInvestmentPlans.map((plan, index) => (
+          {investmentPlans.map((plan, index) => (
             <PlanCard 
               key={plan.id} 
               plan={plan} 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+e import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { Users, DollarSign, TrendingUp, Shield, Eye, Ban, CheckCircle, XCircle, Settings } from 'lucide-react';
-import { mockInvestments, mockTransactions, mockInvestmentPlans } from '@/data/mockData';
+import { apiService } from '@/services/apiService';
 import { useToast } from '@/hooks/use-toast';
 import ReportsDialog from '@/components/ReportsDialog';
 import NotificationDialog from '@/components/NotificationDialog';
@@ -45,6 +45,37 @@ const AdminDashboard: React.FC = () => {
   const [reportsDialogOpen, setReportsDialogOpen] = useState(false);
   const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
   const [backupDialogOpen, setBackupDialogOpen] = useState(false);
+  const [investments, setInvestments] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [investmentPlans, setInvestmentPlans] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        // Carregar investimentos
+        const investmentsData = await apiService.getUserInvestments();
+        setInvestments(investmentsData);
+
+        // Carregar transações
+        const transactionsData = await apiService.getTransactionHistory(50);
+        setTransactions(transactionsData);
+
+        // Carregar planos de investimento
+        const plansData = await apiService.getInvestmentPlans();
+        setInvestmentPlans(plansData);
+      } catch (error) {
+        toast({
+          title: "Erro ao carregar dados",
+          description: "Não foi possível carregar alguns dados administrativos.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    if (user?.isAdmin) {
+      fetchAdminData();
+    }
+  }, [user?.isAdmin]);
 
   if (!user?.isAdmin) {
     return (
@@ -258,7 +289,7 @@ const AdminDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {mockInvestments.map((investment) => (
+                  {investments.map((investment) => (
                     <div key={investment.id} className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
                       <div>
                         <p className="font-medium">Investment #{investment.id}</p>
@@ -286,7 +317,7 @@ const AdminDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {mockTransactions.filter(t => t.status === 'pending').map((transaction) => (
+                  {transactions.filter(t => t.status === 'pending').map((transaction) => (
                     <div key={transaction.id} className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
                       <div>
                         <p className="font-medium capitalize">{transaction.type}</p>
@@ -301,15 +332,15 @@ const AdminDashboard: React.FC = () => {
                           <p className="text-sm text-muted-foreground">{transaction.currency}</p>
                         </div>
                         <div className="flex space-x-2">
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="default"
                             onClick={() => handleWithdrawalAction('approved', transaction.amount)}
                           >
                             Approve
                           </Button>
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="destructive"
                             onClick={() => handleWithdrawalAction('rejected', transaction.amount)}
                           >
@@ -361,7 +392,7 @@ const AdminDashboard: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {mockInvestmentPlans.map((plan) => (
+                    {investmentPlans.map((plan) => (
                       <div key={plan.id} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
                         <div>
                           <p className="font-medium">{plan.name}</p>
@@ -369,8 +400,8 @@ const AdminDashboard: React.FC = () => {
                             {plan.dailyReturn}% daily • {plan.duration} days
                           </p>
                         </div>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => {
                             toast({

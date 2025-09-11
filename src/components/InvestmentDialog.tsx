@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { mockInvestmentPlans } from '@/data/mockData';
+import { apiService } from '@/services/apiService';
 import { InvestmentPlan } from '@/types';
 
 interface InvestmentDialogProps {
@@ -19,10 +19,27 @@ interface InvestmentDialogProps {
 const InvestmentDialog: React.FC<InvestmentDialogProps> = ({ open, onOpenChange, selectedPlan }) => {
   const [amount, setAmount] = useState('');
   const [planId, setPlanId] = useState(selectedPlan?.id || '');
+  const [investmentPlans, setInvestmentPlans] = useState<InvestmentPlan[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const selectedPlanData = mockInvestmentPlans.find(p => p.id === planId) || selectedPlan;
+  useEffect(() => {
+    const fetchInvestmentPlans = async () => {
+      try {
+        const plans = await apiService.getInvestmentPlans();
+        setInvestmentPlans(plans);
+      } catch (error) {
+        toast({
+          title: "Erro ao carregar planos",
+          description: "Não foi possível carregar os planos de investimento.",
+          variant: "destructive",
+        });
+      }
+    };
+    fetchInvestmentPlans();
+  }, []);
+
+  const selectedPlanData = investmentPlans.find(p => p.id === planId) || selectedPlan;
 
   const calculateReturns = () => {
     if (!amount || !selectedPlanData) return null;
@@ -104,7 +121,7 @@ const InvestmentDialog: React.FC<InvestmentDialogProps> = ({ open, onOpenChange,
                   <SelectValue placeholder="Select a plan" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockInvestmentPlans.map((plan) => (
+                  {investmentPlans.map((plan) => (
                     <SelectItem key={plan.id} value={plan.id}>
                       {plan.name} - {plan.dailyReturn}% daily
                     </SelectItem>

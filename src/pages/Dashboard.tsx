@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Tooltip, AreaChart, Area } from 'recharts';
 import { TrendingUp, DollarSign, Wallet, ArrowUpRight, ArrowDownRight, Clock, Plus, Download, Shield, Users, Activity, Bell, Settings, Target, Calendar, Eye, EyeOff, RefreshCw, Zap } from 'lucide-react';
-import { mockDashboardStats, mockEarningsChartData, mockPortfolioData, mockBalanceHistory, mockTransactions } from '@/data/mockData';
+import { apiService } from '@/services/apiService';
+import { useToast } from '@/hooks/use-toast';
 import InvestmentDialog from '@/components/InvestmentDialog';
 import WithdrawalDialog from '@/components/WithdrawalDialog';
 import ReportsDialog from '@/components/ReportsDialog';
@@ -18,6 +19,7 @@ import BackupDialog from '@/components/BackupDialog';
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [investmentDialogOpen, setInvestmentDialogOpen] = useState(false);
   const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
   const [reportsDialogOpen, setReportsDialogOpen] = useState(false);
@@ -27,7 +29,92 @@ const Dashboard: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('7d');
 
-  const stats = mockDashboardStats;
+  // State for dashboard data
+  const [stats, setStats] = useState({
+    totalBalance: 0,
+    totalInvested: 0,
+    todayEarnings: 0,
+    totalEarnings: 0,
+    activeInvestments: 0
+  });
+  const [earningsChartData, setEarningsChartData] = useState([]);
+  const [portfolioData, setPortfolioData] = useState([]);
+  const [balanceHistory, setBalanceHistory] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load dashboard data from backend
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        // Load wallet stats
+        const walletStats = await apiService.getWalletStats();
+        setStats({
+          totalBalance: walletStats.total_balance || 0,
+          totalInvested: walletStats.total_invested || 0,
+          todayEarnings: walletStats.today_earnings || 0,
+          totalEarnings: walletStats.total_earnings || 0,
+          activeInvestments: walletStats.active_investments || 0
+        });
+
+        // Load earnings chart data (mock for now, can be replaced with real API)
+        setEarningsChartData([
+          { date: '2024-01-01', earnings: 12 },
+          { date: '2024-01-02', earnings: 18 },
+          { date: '2024-01-03', earnings: 24 },
+          { date: '2024-01-04', earnings: 32 },
+          { date: '2024-01-05', earnings: 28 },
+          { date: '2024-01-06', earnings: 35 },
+          { date: '2024-01-07', earnings: 42 },
+          { date: '2024-01-08', earnings: 38 },
+          { date: '2024-01-09', earnings: 45 },
+          { date: '2024-01-10', earnings: 52 },
+          { date: '2024-01-11', earnings: 48 },
+          { date: '2024-01-12', earnings: 55 },
+          { date: '2024-01-13', earnings: 62 },
+          { date: '2024-01-14', earnings: 58 },
+          { date: '2024-01-15', earnings: 65 }
+        ]);
+
+        // Load portfolio data
+        const userInvestments = await apiService.getUserInvestments();
+        const portfolio = userInvestments.map((inv: any) => ({
+          name: inv.plan_name || 'Investment',
+          value: parseFloat(inv.amount),
+          color: 'hsl(var(--primary))'
+        }));
+        setPortfolioData(portfolio);
+
+        // Load balance history (mock for now)
+        setBalanceHistory([
+          { month: 'Jan', balance: 8000 },
+          { month: 'Feb', balance: 8500 },
+          { month: 'Mar', balance: 9200 },
+          { month: 'Apr', balance: 10100 },
+          { month: 'May', balance: 11200 },
+          { month: 'Jun', balance: 12500 }
+        ]);
+
+        // Load recent transactions
+        const recentTransactions = await apiService.getTransactionHistory(5);
+        setTransactions(recentTransactions);
+
+      } catch (error) {
+        console.error('Erro ao carregar dados do dashboard:', error);
+        toast({
+          title: "Erro ao carregar dados",
+          description: "Não foi possível carregar os dados do dashboard.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, []);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -292,7 +379,7 @@ const Dashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={mockEarningsChartData}>
+                <LineChart data={earningsChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
                   <XAxis 
                     dataKey="date" 
@@ -334,7 +421,7 @@ const Dashboard: React.FC = () => {
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={mockPortfolioData}
+                    data={portfolioData}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -342,12 +429,12 @@ const Dashboard: React.FC = () => {
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {mockPortfolioData.map((entry, index) => (
+                    {portfolioData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
+                  <Tooltip
+                    contentStyle={{
                       backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
@@ -357,11 +444,11 @@ const Dashboard: React.FC = () => {
                 </PieChart>
               </ResponsiveContainer>
               <div className="grid grid-cols-1 gap-3 mt-4">
-                {mockPortfolioData.map((item, index) => (
+                {portfolioData.map((item, index) => (
                   <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
                     <div className="flex items-center">
-                      <div 
-                        className="w-3 h-3 rounded-full mr-3" 
+                      <div
+                        className="w-3 h-3 rounded-full mr-3"
                         style={{ backgroundColor: item.color }}
                       />
                       <span className="text-sm font-medium text-foreground">{item.name}</span>
@@ -371,7 +458,7 @@ const Dashboard: React.FC = () => {
                         ${item.value.toLocaleString()}
                       </span>
                       <div className="text-xs text-muted-foreground">
-                        {((item.value / mockPortfolioData.reduce((acc, curr) => acc + curr.value, 0)) * 100).toFixed(1)}%
+                        {((item.value / portfolioData.reduce((acc, curr) => acc + curr.value, 0)) * 100).toFixed(1)}%
                       </div>
                     </div>
                   </div>
@@ -394,7 +481,7 @@ const Dashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={mockBalanceHistory}>
+                <BarChart data={balanceHistory}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
                   <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                   <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
@@ -523,7 +610,7 @@ const Dashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockTransactions.slice(0, 5).map((transaction) => (
+              {transactions.slice(0, 5).map((transaction) => (
                 <div key={transaction.id} className="flex items-center justify-between p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors">
                   <div className="flex items-center space-x-4">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
