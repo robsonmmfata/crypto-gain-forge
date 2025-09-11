@@ -6,14 +6,14 @@ const BINANCE_API_URL = 'https://api.binance.com';
 const BINANCE_TESTNET_URL = 'https://testnet.binance.vision';
 
 // Use testnet for development, mainnet for production
-const API_BASE_URL = process.env.NODE_ENV === 'production' ? BINANCE_API_URL : BINANCE_TESTNET_URL;
+const API_BASE_URL = import.meta.env.DEV ? BINANCE_TESTNET_URL : BINANCE_API_URL;
 
 // Your Binance API credentials (store in environment variables)
-const API_KEY = process.env.REACT_APP_BINANCE_API_KEY || 'XOcWbSpqPMnRL0NdE13zYolg0gVlw05NflU5EEWOTwGf7QafYG9LQ46xlPQznGuY';
-const SECRET_KEY = process.env.REACT_APP_BINANCE_SECRET_KEY || 't6fnDIRKoPUuuO4wXA4rMspvhhXD3qZ8Eg4BSLaZUs20wcohKdbjoonvdmSvMFV5';
+const API_KEY = import.meta.env.VITE_BINANCE_API_KEY || 'XOcWbSpqPMnRL0NdE13zYolg0gVlw05NflU5EEWOTwGf7QafYG9LQ46xlPQznGuY';
+const SECRET_KEY = import.meta.env.VITE_BINANCE_SECRET_KEY || 't6fnDIRKoPUuuO4wXA4rMspvhhXD3qZ8Eg4BSLaZUs20wcohKdbjoonvdmSvMFV5';
 
 // USDT Deposit Address (your Binance USDT address)
-const USDT_DEPOSIT_ADDRESS = process.env.REACT_APP_BINANCE_USDT_ADDRESS || 'TLbVGmYfgYLRk72KwxZALL6Scj9ona1Z5j';
+const USDT_DEPOSIT_ADDRESS = import.meta.env.VITE_BINANCE_USDT_ADDRESS || 'TLbVGmYfgYLRk72KwxZALL6Scj9ona1Z5j';
 
 interface BinancePrice {
   symbol: string;
