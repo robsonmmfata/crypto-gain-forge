@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Copy, TrendingUp, Users, Award, Clock, DollarSign, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import DepositDialog from '@/components/DepositDialog';
 
 interface Investor {
   id: string;
@@ -192,12 +193,12 @@ const getStatusText = (status: string) => {
 const InvestorsDashboard: React.FC = () => {
   const { toast } = useToast();
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [depositDialogOpen, setDepositDialogOpen] = useState(false);
+  const [selectedInvestor, setSelectedInvestor] = useState<string>('');
 
   const handleSubscribe = (investorName: string) => {
-    toast({
-      title: "Subscrição realizada!",
-      description: `Você agora está seguindo ${investorName}`,
-    });
+    setSelectedInvestor(investorName);
+    setDepositDialogOpen(true);
   };
 
   const handleCopyTxId = (txId: string) => {
@@ -396,6 +397,13 @@ const InvestorsDashboard: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Deposit Dialog */}
+      <DepositDialog 
+        open={depositDialogOpen}
+        onOpenChange={setDepositDialogOpen}
+        investorName={selectedInvestor}
+      />
     </div>
   );
 };
