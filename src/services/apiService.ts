@@ -120,36 +120,41 @@ class ApiService {
 
   // ========== INVESTIMENTOS ==========
   async getInvestmentPlans() {
-    const response = await this.api.get('/investment/plans');
-    return response.data;
+    const response = await this.api.get('/investments/plans');
+    return response.data.plans || response.data;
   }
 
   async getUserInvestments() {
-    const response = await this.api.get('/investment/user');
-    return response.data;
+    const response = await this.api.get('/investments');
+    return response.data.investments || response.data;
   }
 
   async createInvestment(investmentData: {
-    plan_id: number;
+    planId: number;
     amount: number;
   }) {
-    const response = await this.api.post('/investment/create', investmentData);
+    const response = await this.api.post('/investments', investmentData);
     return response.data;
   }
 
-  async getInvestmentDetails(investmentId: number) {
-    const response = await this.api.get(`/investment/${investmentId}`);
-    return response.data;
+  async getInvestmentDetails(investmentId: string) {
+    const response = await this.api.get(`/investments/${investmentId}`);
+    return response.data.investment || response.data;
   }
 
   // ========== TRANSAÇÕES ==========
   async getTransactionHistory(limit = 50) {
-    const response = await this.api.get(`/transaction/history?limit=${limit}`);
+    const response = await this.api.get(`/transactions?limit=${limit}`);
+    return response.data.transactions || response.data;
+  }
+
+  async getTransactionDetails(transactionId: string) {
+    const response = await this.api.get(`/transactions/${transactionId}`);
     return response.data;
   }
 
-  async getTransactionDetails(transactionId: number) {
-    const response = await this.api.get(`/transaction/${transactionId}`);
+  async getTransactionStats() {
+    const response = await this.api.get('/transactions/stats');
     return response.data;
   }
 
@@ -166,17 +171,22 @@ class ApiService {
 
   // ========== BINANCE (PÚBLICO) ==========
   async getBinancePrices() {
-    const response = await this.api.get('/binance/prices');
+    const response = await this.api.get('/binance-public/prices');
     return response.data;
   }
 
   async getBinanceTicker(symbol: string) {
-    const response = await this.api.get(`/binance/ticker/${symbol}`);
+    const response = await this.api.get(`/binance-public/ticker/${symbol}`);
     return response.data;
   }
 
   async getBinanceKlines(symbol: string, interval: string, limit = 100) {
-    const response = await this.api.get(`/binance/klines/${symbol}?interval=${interval}&limit=${limit}`);
+    const response = await this.api.get(`/binance-public/klines/${symbol}?interval=${interval}&limit=${limit}`);
+    return response.data;
+  }
+
+  async getBinance24hrStats() {
+    const response = await this.api.get('/binance-public/24hr-stats');
     return response.data;
   }
 }
